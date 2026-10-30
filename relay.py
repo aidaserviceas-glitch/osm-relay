@@ -45,10 +45,13 @@ def main():
         for j in jobs:
             if time.time() - t0 > 14 * 60: break
             ok, els, info = overpass(j["q"])
-            if ok:
-                relay("/result", {"h": j["h"], "ok": True, "elements": els, "mirror": info}); done += 1
-            else:
-                relay("/result", {"h": j["h"], "ok": False, "err": info}); fail += 1
+            try:
+                if ok:
+                    relay("/result", {"h": j["h"], "ok": True, "elements": els, "mirror": info}); done += 1
+                else:
+                    relay("/result", {"h": j["h"], "ok": False, "err": info}); fail += 1
+            except Exception as e:
+                print("kunne ikke levere", j.get("h"), str(e)[:80]); fail += 1
             time.sleep(2)
         if fail and not done: break
     print(f"ferdig: {done} ok, {fail} feilet, {int(time.time()-t0)} s")
